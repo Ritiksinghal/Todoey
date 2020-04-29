@@ -7,17 +7,19 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListViewController: UITableViewController {
     
     var itemArray = [Item]()
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+ 
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-     //   loadItems()
+          print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
+        loadItems()
     }
     
     
@@ -44,7 +46,10 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+       // context.delete(itemArray[indexPath.row])
+       // itemArray.remove(at: indexPath.row)
+        
+       // itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         saveItems()
         
         tableView.deselectRow(at: indexPath, animated: true)
@@ -81,6 +86,8 @@ class TodoListViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
+    //MARK - Module manipulation methods
+    
     func saveItems() {
      
         do {
@@ -92,20 +99,15 @@ class TodoListViewController: UITableViewController {
         self.tableView.reloadData()
     }
     
-   /* func loadItems() {
-        if let data = try? Data(contentsOf: dataFilePath!) {
-            let decoder = PropertyListDecoder()
-            
-            do {
-                itemArray = try decoder.decode([Item].self, from: data)
+    func loadItems() {
+   
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        do {
+            itemArray = try context.fetch(request)
         } catch {
-                print("Error decoding item array, \(error)")
-            }
-            
-            
-            
+            print("Error fetching data from the context, \(error)")
         }
-    } */
+    }
     
 }
 
